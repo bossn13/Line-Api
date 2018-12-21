@@ -27,22 +27,33 @@ foreach ($client->parseEvents() as $event) {
         case 'message':
             $message = $event['message'];
             $userID = $event['source']['userId'];
+            $replyToken = $event["replyToken"];
+            $replyMessage = "";
+
             switch ($message['type']) {
                 case 'text':
-                    $client->replyMessage([
-                        'replyToken' => $event['replyToken'],
-                        'messages' => [
-                            [
-                                'type' => 'text',
-                                'text' => $message['text'] . " From : " . $userID,
-                            ],
-                        ],
-                    ]);
+                    $replyMessage = "Your Message Type : " . $message["type"] . "\n Message text : " . $message["text"];
+                    break;
+                case "sticker":
+                    $replyMessage = "Your Message Type : " . $message["type"] . "\n Sticker packageId : " . $message["packageId"] . "\n Sticker stickerId : " . $message["stickerId"];
                     break;
                 default:
+                    $replyMessage = "Your Message Type : " . $message["type"] . "\n Unhandled ";
                     error_log('Unsupported message type: ' . $message['type']);
                     break;
             }
+
+            //reply user
+            $client->replyMessage([
+                'replyToken' => $event['replyToken'],
+                'messages' => [
+                    [
+                        'type' => 'text',
+                        'text' => $replyMessage . "\n From : " . $userID,
+                    ],
+                ],
+            ]);
+
             break;
         default:
             error_log('Unsupported event type: ' . $event['type']);
