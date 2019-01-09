@@ -15,7 +15,6 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-
 /*
  * This polyfill of hash_equals() is a modified edition of https://github.com/indigophp/hash-compat/tree/43a19f42093a0cd2d11874dff9d891027fc42214
  *
@@ -23,13 +22,16 @@
  * Released under the MIT license
  * https://github.com/indigophp/hash-compat/blob/43a19f42093a0cd2d11874dff9d891027fc42214/LICENSE
  */
-if (!function_exists('hash_equals')) {
+if (!function_exists('hash_equals'))
+{
     defined('USE_MB_STRING') or define('USE_MB_STRING', function_exists('mb_strlen'));
 
     function hash_equals($knownString, $userString)
     {
-        $strlen = function ($string) {
-            if (USE_MB_STRING) {
+        $strlen = function ($string)
+        {
+            if (USE_MB_STRING)
+            {
                 return mb_strlen($string, '8bit');
             }
 
@@ -37,18 +39,21 @@ if (!function_exists('hash_equals')) {
         };
 
         // Compare string lengths
-        if (($length = $strlen($knownString)) !== $strlen($userString)) {
+        if (($length = $strlen($knownString)) !== $strlen($userString))
+        {
             return false;
         }
 
         $diff = 0;
 
         // Calculate differences
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; $i++)
+        {
             $diff |= ord($knownString[$i]) ^ ord($userString[$i]);
         }
         return $diff === 0;
     }
+
 }
 
 class LINEBotTiny
@@ -64,7 +69,8 @@ class LINEBotTiny
 
     public function parseEvents()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST')
+        {
             http_response_code(405);
             error_log('Method not allowed');
             exit();
@@ -72,20 +78,23 @@ class LINEBotTiny
 
         $entityBody = file_get_contents('php://input');
 
-        if (strlen($entityBody) === 0) {
+        if (strlen($entityBody) === 0)
+        {
             http_response_code(400);
             error_log('Missing request body');
             exit();
         }
 
-        if (!hash_equals($this->sign($entityBody), $_SERVER['HTTP_X_LINE_SIGNATURE'])) {
+        if (!hash_equals($this->sign($entityBody), $_SERVER['HTTP_X_LINE_SIGNATURE']))
+        {
             http_response_code(400);
             error_log('Invalid signature value');
             exit();
         }
 
         $data = json_decode($entityBody, true);
-        if (!isset($data['events'])) {
+        if (!isset($data['events']))
+        {
             http_response_code(400);
             error_log('Invalid request body: missing events property');
             exit();
@@ -109,7 +118,8 @@ class LINEBotTiny
         ]);
 
         $response = file_get_contents('https://api.line.me/v2/bot/message/reply', false, $context);
-        if (strpos($http_response_header[0], '200') === false) {
+        if (strpos($http_response_header[0], '200') === false)
+        {
             http_response_code(500);
             error_log('Request failed: ' . $response);
         }
@@ -131,7 +141,8 @@ class LINEBotTiny
         ]);
 
         $response = file_get_contents('https://api.line.me/v2/bot/message/push', false, $context);
-        if (strpos($http_response_header[0], '200') === false) {
+        if (strpos($http_response_header[0], '200') === false)
+        {
             http_response_code(500);
             error_log('Request failed: ' . $response);
         }
@@ -153,7 +164,8 @@ class LINEBotTiny
         ]);
 
         $response = file_get_contents('https://api.line.me/v2/bot/message/multicast', false, $context);
-        if (strpos($http_response_header[0], '200') === false) {
+        if (strpos($http_response_header[0], '200') === false)
+        {
             http_response_code(500);
             error_log('Request failed: ' . $response);
         }
@@ -174,12 +186,113 @@ class LINEBotTiny
         ]);
 
         $response = file_get_contents("https://api.line.me/v2/bot/profile/" . $userID, false, $context);
-        if (strpos($http_response_header[0], '200') === false) {
+        if (strpos($http_response_header[0], '200') === false)
+        {
             http_response_code(500);
             error_log('Request failed: ' . $response);
-        } else {
+        }
+        else
+        {
             return json_decode($response);
         }
+    }
+
+    function rich_menu_create($pMenu_content_json)
+    {
+        $url_richmenu = "https://api.line.me/v2/bot/richmenu";
+
+        $header_context = $this->header_context_POST($pMenu_content_json);
+        $response = file_get_contents($url_richmenu, false, $header_context);
+
+        if (strpos($http_response_header[0], '200') === false)
+        {
+            http_response_code(500);
+            error_log('Request failed: ' . $response);
+        }
+        else
+        {//success 
+            return json_decode($response);
+        }
+    }
+
+    function rich_menu_upload($pRichMenuID, $pImage_path, $pContent_type)
+    {
+        //Use shell script exec
+        $sh = <<< EOF
+                curl -X POST \
+                -H 'Authorization: Bearer $this->channelAccessToken' \
+                -H 'Content-Type: $pContent_type' \
+                -H 'Expect:' \
+                -T $pImage_path \
+                https://api.line.me/v2/bot/richmenu/$pRichMenuID/content
+EOF;
+        $result = json_decode(shell_exec(str_replace('\\', '', str_replace(PHP_EOL, '', $sh))), true);
+        if (isset($result['message']))
+        {
+            return $result['message'];
+        }
+        else
+        {
+            return 'success.  has uploaded onto ' . $pRichMenuID;
+        }
+    }
+    
+    function rich_menu_set_default($pMenuID)
+    {
+        $url_set_default_richmenu = "https://api.line.me/v2/bot/user/all/richmenu/{$pMenuID}";
+        $header_context  = $this->header_context_POST("{}");
+        $response = file_get_contents($url_richmenu, false, $header_context);
+
+        if (strpos($http_response_header[0], '200') === false)
+        {
+            http_response_code(500);
+            error_log('Request failed: ' . $response);
+        }
+        else
+        {//success 
+            return json_decode($response);
+        }        
+    }
+
+    private function header_context_GET()
+    {
+        $header = array(
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $this->channelAccessToken,
+        );
+
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'GET',
+                'header' => implode("\r\n", $header),
+            ],
+        ]);
+
+        return $context;
+    }
+
+    private function header_context_POST($pMessage_json, $pContent_type = "")
+    {
+        $content_type = "application/json";
+        if ($pContent_type != "")
+        {
+            $content_type = $pContent_type;
+        }
+
+        $header = array(
+            "Content-Type: {$content_type}",
+            "Authorization: Bearer " . $this->channelAccessToken,
+        );
+
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => implode("\r\n", $header),
+                'content' => json_encode($pMessage_json),
+            ],
+        ]);
+
+        return $context;
     }
 
     private function sign($body)
@@ -188,4 +301,5 @@ class LINEBotTiny
         $signature = base64_encode($hash);
         return $signature;
     }
+
 }
