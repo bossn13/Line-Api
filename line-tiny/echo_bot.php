@@ -41,7 +41,7 @@ foreach ($client->parseEvents() as $event)
                     {//login url
                         $arr_reply_message["type"] = "template";
                         $arr_reply_message["altText"] = "login FMD x Line";
-                        $arr_reply_message["template"] = json_decode('{"type":"buttons","actions":[{"type":"uri","label":"Login","uri":"http://ecar.egat.co.th/line-fmd-ws?userid=xxxxx"}],"thumbnailImageUrl":"https://us.123rf.com/450wm/dirkercken/dirkercken1403/dirkercken140301620/26969365-login-icon-or-user-or-member-log-in-button-website-banner.jpg?ver=6","title":"เข้าสู่ระบบ","text":"เข้าสู่ระบบโดยใช้ e-mail กฟผ."}');
+                        $arr_reply_message["template"] = json_decode('{"type":"buttons","actions":[{"type":"uri","label":"Login","uri":"http://ecar.egat.co.th/line-fmd-ws?userid=' . $userID . '"}],"thumbnailImageUrl":"https://us.123rf.com/450wm/dirkercken/dirkercken1403/dirkercken140301620/26969365-login-icon-or-user-or-member-log-in-button-website-banner.jpg?ver=6","title":"เข้าสู่ระบบ","text":"เข้าสู่ระบบโดยใช้ e-mail กฟผ."}');
                     }
                     else
                     {
