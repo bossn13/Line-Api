@@ -39,11 +39,13 @@ foreach ($client->parseEvents() as $event)
                     $msg = $message["text"];
                     if ($msg == "login : linexfmd")
                     {//login url
-                        $arr_reply_message["type"] = "template";
                         $arr_reply_message["altText"] = "login FMD x Line";
+                        //$arr_reply_message["type"] = "template";
                         //$arr_reply_message["template"] = json_decode('{"type":"buttons","actions":[{"type":"uri","label":"Login","uri":"http://ecar.egat.co.th/line-fmd-ws/login?a=' . $userID . '&b=' . strtotime("now") .'"}],"thumbnailImageUrl":"https://us.123rf.com/450wm/dirkercken/dirkercken1403/dirkercken140301620/26969365-login-icon-or-user-or-member-log-in-button-website-banner.jpg?ver=6","title":"เข้าสู่ระบบ","text":"เข้าสู่ระบบโดยใช้ e-mail กฟผ."}');
+                        
                         $url_login = "http://ecar.egat.co.th/line-fmd-ws/login?a= " . $userID . "&b=" . strtotime("now");
-                        $arr_reply_message["template"] = json_decode('{"type":"bubble","hero":{"type":"image","url":"https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png","size":"full","aspectRatio":"20:13","aspectMode":"cover","action":{"type":"uri","uri":"' . $url_login .'"}},"body":{"type":"box","layout":"vertical","contents":[{"type":"text","text":"เข้าสู่ระบบ","weight":"bold","size":"xl"},{"type":"box","layout":"vertical","margin":"lg","spacing":"sm","contents":[{"type":"box","layout":"baseline","spacing":"sm","contents":[{"type":"text","text":"สามารถเข้าสู่ระบบเพื่อใช้งานระบบงานอหท. ผ่าน Line ได้ด้วยเลขประจำตัว และรหัสผ่านเดียวกับ e-mail กฟผ.","wrap":true,"color":"#666666","size":"sm","flex":1}]}]}]},"footer":{"type":"box","layout":"vertical","spacing":"sm","contents":[{"type":"button","style":"link","height":"sm","action":{"type":"uri","label":"กดที่นี่เพื่อเข้าสู่ระบบ","uri":"'. $url_login .'"}},{"type":"spacer","size":"sm"}],"flex":0}}');
+                        $arr_reply_message["type"] = "flex";
+                        $arr_reply_message["contents"] = json_decode('{"type":"bubble","hero":{"type":"image","url":"https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png","size":"full","aspectRatio":"20:13","aspectMode":"cover","action":{"type":"uri","uri":"' . $url_login .'"}},"body":{"type":"box","layout":"vertical","contents":[{"type":"text","text":"เข้าสู่ระบบ","weight":"bold","size":"xl"},{"type":"box","layout":"vertical","margin":"lg","spacing":"sm","contents":[{"type":"box","layout":"baseline","spacing":"sm","contents":[{"type":"text","text":"สามารถเข้าสู่ระบบเพื่อใช้งานระบบงานอหท. ผ่าน Line ได้ด้วยเลขประจำตัว และรหัสผ่านเดียวกับ e-mail กฟผ.","wrap":true,"color":"#666666","size":"sm","flex":1}]}]}]},"footer":{"type":"box","layout":"vertical","spacing":"sm","contents":[{"type":"button","style":"link","height":"sm","action":{"type":"uri","label":"กดที่นี่เพื่อเข้าสู่ระบบ","uri":"'. $url_login .'"}},{"type":"spacer","size":"sm"}],"flex":0}}');
                     }
                     else
                     {
